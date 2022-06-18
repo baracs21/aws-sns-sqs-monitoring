@@ -1,16 +1,24 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import {Stack, StackProps} from 'aws-cdk-lib';
+import {Construct} from 'constructs';
+import {Subscription, SubscriptionProtocol, Topic} from 'aws-cdk-lib/aws-sns';
+import {Queue} from 'aws-cdk-lib/aws-sqs';
 
 export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const topic = new Topic(this, 'my-topic', {
+      topicName: 'my-topic',
+    })
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'InfrastructureQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const queue = new Queue(this, 'my-queue', {
+      queueName: 'my-queue',
+    })
+
+    new Subscription(this, 'my-sub', {
+      topic: topic,
+      endpoint: queue.queueUrl,
+      protocol: SubscriptionProtocol.SQS
+    })
   }
 }
