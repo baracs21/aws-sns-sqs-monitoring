@@ -1,9 +1,7 @@
 import {Stack, StackProps} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
-import {Subscription, SubscriptionProtocol, Topic} from 'aws-cdk-lib/aws-sns';
-import {Queue} from 'aws-cdk-lib/aws-sqs';
-import {Lambda} from 'aws-cdk-lib/aws-ses-actions';
-import {Function, Runtime} from 'aws-cdk-lib/aws-lambda';
+import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
+import {RetentionDays} from "aws-cdk-lib/aws-logs";
 
 export class CustomResourcesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -12,7 +10,10 @@ export class CustomResourcesStack extends Stack {
     new Function(this, 'extended-topic', {
       functionName: 'ExtendedTopic',
       runtime: Runtime.GO_1_X,
-      handler:
+      handler: 'topic-monitoring',
+      code: Code.fromAsset('../src/.build/topic-monitoring.zip'),
+      logRetention: RetentionDays.ONE_DAY,
+      memorySize: 128
     })
   }
 }

@@ -16,9 +16,8 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 	topicName := event.ResourceProperties["TopicName"].(string)
 	client := sns.NewFromConfig(*aws.NewConfig())
 	topic, _ := client.CreateTopic(ctx, &sns.CreateTopicInput{
-		Name:       aws.String(topicName),
+		Name: aws.String(topicName),
 	})
 	tData := map[string]interface{}{"Arn": topic.TopicArn}
-	return aws.ToString(topic.TopicArn), tData, nil
+	return topicName, tData, nil
 }
-
