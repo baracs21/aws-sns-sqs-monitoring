@@ -1,8 +1,8 @@
-import {Stack, StackProps} from 'aws-cdk-lib';
+import {CfnCustomResource, Stack, StackProps} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
 import {RetentionDays} from "aws-cdk-lib/aws-logs";
-import {ManagedPolicy, Policy, Role} from 'aws-cdk-lib/aws-iam';
+import {ManagedPolicy} from 'aws-cdk-lib/aws-iam';
 
 export class CustomResourcesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {

@@ -16,25 +16,28 @@ func main() {
 func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, data map[string]interface{}, err error) {
 	tData := map[string]interface{}{}
 	cfg, _ := config.LoadDefaultConfig(ctx)
+	client := sns.NewFromConfig(cfg)
 	if event.RequestType == "Create" {
-		topicName := event.ResourceProperties["TopicName"].(string)
-		client := sns.NewFromConfig(cfg)
-		topic, err := client.CreateTopic(ctx, &sns.CreateTopicInput{
-			Name: aws.String(topicName),
+		topicArn := event.ResourceProperties["TopicArn"].(string)
+		roleArn := event.ResourceProperties["RoleArn"].(string)
+
+		_, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
+			AttributeValue: aws.String(roleArn),
 		})
-		physicalResID := ""
-		if topic != nil {
-			physicalResID = aws.ToString(topic.TopicArn)
-		}
-		return physicalResID, tData, err
-	}
-	if event.RequestType == "Delete" {
-		topicArn := event.PhysicalResourceID
-		client := sns.NewFromConfig(cfg)
-		_, err = client.DeleteTopic(ctx, &sns.DeleteTopicInput{
-			TopicArn: aws.String(topicArn),
+		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSFailureFeedbackRoleArn"),
+			AttributeValue: aws.String(roleArn),
+		})
+		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
+			AttributeValue: aws.String("100"),
 		})
 		return topicArn, tData, err
 	}
+
 	return "", tData, nil
 }
