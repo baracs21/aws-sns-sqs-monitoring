@@ -17,8 +17,8 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 	tData := map[string]interface{}{}
 	cfg, _ := config.LoadDefaultConfig(ctx)
 	client := sns.NewFromConfig(cfg)
+	topicArn := event.ResourceProperties["TopicArn"].(string)
 	if event.RequestType == "Create" {
-		topicArn := event.ResourceProperties["TopicArn"].(string)
 		roleArn := event.ResourceProperties["RoleArn"].(string)
 
 		_, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
@@ -35,6 +35,25 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
 			AttributeValue: aws.String("100"),
+		})
+		return topicArn, tData, err
+	}
+
+	if event.RequestType == "Delete" {
+		_, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
+			AttributeValue: aws.String(""),
+		})
+		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSFailureFeedbackRoleArn"),
+			AttributeValue: aws.String(""),
+		})
+		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
+			AttributeValue: aws.String(""),
 		})
 		return topicArn, tData, err
 	}

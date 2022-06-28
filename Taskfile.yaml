@@ -29,15 +29,11 @@ tasks:
       - drawio -x -f png -o arc.png arc.drawio
     silent: true
 
+  default:
+    deps: [ bootstrap:bootstrap-main-account, build ]
+    cmds:
+      - task common:deploy
+
   build:
     cmds:
       - scripts/build-go.sh $PWD/src
-
-  deploy-custom-resources:
-    deps:
-      - build
-    dir: ./infrastructure
-    cmds:
-      - npm ci
-      - cdk synth
-      - cdk deploy CustomResourceStack

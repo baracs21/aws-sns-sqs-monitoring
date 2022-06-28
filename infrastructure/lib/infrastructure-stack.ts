@@ -1,8 +1,9 @@
-import {Stack, StackProps} from 'aws-cdk-lib';
+import {CustomResource, Stack, StackProps} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {Subscription, SubscriptionProtocol, Topic} from 'aws-cdk-lib/aws-sns';
 import {Queue} from 'aws-cdk-lib/aws-sqs';
 import {Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
+import {SnsCustomResources} from "./components/sns-custom-resources";
 
 export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -16,7 +17,7 @@ export class InfrastructureStack extends Stack {
       roleName: 'SNSFeedback',
       assumedBy: new ServicePrincipal("sns.amazonaws.com"),
       inlinePolicies: {
-        "": new PolicyDocument({
+        "logPolicy": new PolicyDocument({
           statements: [
             new PolicyStatement({
               effect: Effect.ALLOW,
@@ -45,5 +46,11 @@ export class InfrastructureStack extends Stack {
       endpoint: queue.queueUrl,
       protocol: SubscriptionProtocol.SQS
     })
+
+    new SnsCustomResources(this, 'sns-sqs', {
+      RoleArn: snsRole.roleArn,
+      TopicArn: topic.topicArn
+    })
+
   }
 }
