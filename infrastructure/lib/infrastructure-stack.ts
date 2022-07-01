@@ -1,4 +1,4 @@
-import {CustomResource, Stack, StackProps} from 'aws-cdk-lib';
+import {Stack, StackProps} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {Subscription, SubscriptionProtocol, Topic} from 'aws-cdk-lib/aws-sns';
 import {Queue} from 'aws-cdk-lib/aws-sqs';
@@ -43,13 +43,31 @@ export class InfrastructureStack extends Stack {
 
     new Subscription(this, 'my-sub', {
       topic: topic,
-      endpoint: queue.queueUrl,
+      endpoint: queue.queueArn,
       protocol: SubscriptionProtocol.SQS
     })
 
+    queue.addToResourcePolicy(new PolicyStatement({
+      effect: Effect.ALLOW,
+      principals: [
+        new ServicePrincipal('sns.amazonaws.com')
+      ],
+      resources: [
+        queue.queueArn
+      ],
+      actions: [
+        'sqs:SendMessage'
+      ],
+      conditions: {
+        ArnEquals: {
+          'aws:SourceArn': topic.topicArn
+        }
+      }
+    }))
+
     new SnsCustomResources(this, 'sns-sqs', {
-      RoleArn: snsRole.roleArn,
-      TopicArn: topic.topicArn
+      role: snsRole,
+      topic: topic
     })
 
   }

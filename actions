@@ -1,9 +1,9 @@
 cloudformation:*
 ssm:*
-dkr:*
-ecs:*
-ecr:*
 vpc:*
 ec2:*
 iam:*
-sts:*
+sns:*
+sqs:*
+lambda:*
+s3:*

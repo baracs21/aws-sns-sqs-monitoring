@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sns"
+	"log"
 )
 
 func main() {
@@ -21,14 +22,20 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 	if event.RequestType == "Create" {
 		roleArn := event.ResourceProperties["RoleArn"].(string)
 
-		_, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
-			TopicArn:       aws.String(topicArn),
-			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
-			AttributeValue: aws.String(roleArn),
-		})
-		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+		log.Printf("TopicArn: %s", topicArn)
+		log.Printf("RoleArn: %s", roleArn)
+
+		resp, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSFailureFeedbackRoleArn"),
+			AttributeValue: aws.String(roleArn),
+		})
+		log.Printf("Response: %s", resp)
+		log.Printf("Error: %s", err)
+
+		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+			TopicArn:       aws.String(topicArn),
+			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
 			AttributeValue: aws.String(roleArn),
 		})
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
@@ -53,7 +60,7 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
-			AttributeValue: aws.String(""),
+			AttributeValue: aws.String("100"),
 		})
 		return topicArn, tData, err
 	}

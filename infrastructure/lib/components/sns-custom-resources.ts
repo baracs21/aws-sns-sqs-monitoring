@@ -1,15 +1,16 @@
-import {CfnCustomResource, CustomResource, Stack, StackProps} from 'aws-cdk-lib';
+import {CustomResource} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
 import {RetentionDays} from "aws-cdk-lib/aws-logs";
-import {ManagedPolicy} from 'aws-cdk-lib/aws-iam';
+import {Effect, IRole, ManagedPolicy, Policy, PolicyStatement} from 'aws-cdk-lib/aws-iam';
 import {Provider} from "aws-cdk-lib/custom-resources";
+import {ITopic} from "aws-cdk-lib/aws-sns";
 
 // https://github.com/aws-samples/aws-cdk-examples/blob/master/typescript/custom-resource/my-custom-resource
 
 export interface CustomResourceProps {
-  RoleArn: string;
-  TopicArn: string;
+  role: IRole;
+  topic: ITopic;
 }
 
 export class SnsCustomResources extends Construct {
@@ -26,6 +27,19 @@ export class SnsCustomResources extends Construct {
     })
 
     extendTopicFunction.role?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'))
+    extendTopicFunction.role?.attachInlinePolicy(new Policy(this, 'lambda-pass-role-policy', {
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: [
+            props.role.roleArn
+          ],
+          actions: [
+            'iam:PassRole'
+          ]
+        })
+      ]
+    }))
 
     const provider = new Provider(this, 'provider', {
       onEventHandler: extendTopicFunction,
@@ -33,7 +47,10 @@ export class SnsCustomResources extends Construct {
 
     new CustomResource(this, 'resource', {
       serviceToken: provider.serviceToken,
-      properties: props,
+      properties: {
+        RoleArn: props.role.roleArn,
+        TopicArn: props.topic.topicArn
+      },
     })
 
   }

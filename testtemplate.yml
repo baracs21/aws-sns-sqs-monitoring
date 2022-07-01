@@ -1,9 +1,0 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: S3 bucket resource using custom resource
-Resources:
-  ExtendedTopic:
-    Type: Custom::ExtendedTopic
-    Version : 1.0
-    Properties:
-      ServiceToken: arn:aws:lambda:eu-west-1:501015370583:function:ExtendedTopic
-      TopicName: "MyTopic"
