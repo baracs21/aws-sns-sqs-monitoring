@@ -22,27 +22,39 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 	if event.RequestType == "Create" {
 		roleArn := event.ResourceProperties["RoleArn"].(string)
 
-		log.Printf("TopicArn: %s", topicArn)
-		log.Printf("RoleArn: %s", roleArn)
-
-		resp, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
+		_, err := client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSFailureFeedbackRoleArn"),
 			AttributeValue: aws.String(roleArn),
 		})
-		log.Printf("Response: %s", resp)
-		log.Printf("Error: %s", err)
+
+		if err != nil {
+			log.Printf("SQSFailureFeedbackRoleArn, ERROR: %s, %s", err, roleArn)
+			return "", tData, err
+		}
 
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
 			AttributeValue: aws.String(roleArn),
 		})
+
+		if err != nil {
+			log.Printf("SQSSuccessFeedbackRoleArn, ERROR: %s, %s", err, roleArn)
+			return "", tData, err
+		}
+
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
 			AttributeValue: aws.String("100"),
 		})
+
+		if err != nil {
+			log.Printf("SQSSuccessFeedbackSampleRate, ERROR: %s", err)
+			return "", tData, err
+		}
+
 		return topicArn, tData, err
 	}
 
@@ -52,16 +64,27 @@ func handler(ctx context.Context, event cfn.Event) (physicalResourceID string, d
 			AttributeName:  aws.String("SQSSuccessFeedbackRoleArn"),
 			AttributeValue: aws.String(""),
 		})
+
+		if err != nil {
+			return "", tData, err
+		}
+
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSFailureFeedbackRoleArn"),
 			AttributeValue: aws.String(""),
 		})
+
+		if err != nil {
+			return "", tData, err
+		}
+
 		_, err = client.SetTopicAttributes(ctx, &sns.SetTopicAttributesInput{
 			TopicArn:       aws.String(topicArn),
 			AttributeName:  aws.String("SQSSuccessFeedbackSampleRate"),
 			AttributeValue: aws.String("100"),
 		})
+		
 		return topicArn, tData, err
 	}
 

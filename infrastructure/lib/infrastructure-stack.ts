@@ -3,7 +3,7 @@ import {Construct} from 'constructs';
 import {Subscription, SubscriptionProtocol, Topic} from 'aws-cdk-lib/aws-sns';
 import {Queue} from 'aws-cdk-lib/aws-sqs';
 import {Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
-import {SnsCustomResources} from "./components/sns-custom-resources";
+import {SnsMonitoringResource} from "./components/sns-monitoring-resource";
 
 export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -65,7 +65,7 @@ export class InfrastructureStack extends Stack {
       }
     }))
 
-    new SnsCustomResources(this, 'sns-sqs', {
+    new SnsMonitoringResource(this, 'sns-sqs', {
       role: snsRole,
       topic: topic
     })

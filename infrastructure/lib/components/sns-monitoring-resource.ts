@@ -7,14 +7,13 @@ import {Provider} from "aws-cdk-lib/custom-resources";
 import {ITopic} from "aws-cdk-lib/aws-sns";
 
 // https://github.com/aws-samples/aws-cdk-examples/blob/master/typescript/custom-resource/my-custom-resource
-
-export interface CustomResourceProps {
+export interface SnsMonitoringResourceProps {
   role: IRole;
   topic: ITopic;
 }
 
-export class SnsCustomResources extends Construct {
-  constructor(scope: Construct, id: string, props: CustomResourceProps) {
+export class SnsMonitoringResource extends Construct {
+  constructor(scope: Construct, id: string, props: SnsMonitoringResourceProps) {
     super(scope, id)
 
     const extendTopicFunction = new Function(this, 'extended-topic', {
@@ -45,7 +44,7 @@ export class SnsCustomResources extends Construct {
       onEventHandler: extendTopicFunction,
     })
 
-    new CustomResource(this, 'resource', {
+    new CustomResource(this, 'sns-topic-monitoring', {
       serviceToken: provider.serviceToken,
       properties: {
         RoleArn: props.role.roleArn,
