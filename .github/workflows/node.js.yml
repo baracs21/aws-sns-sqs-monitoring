@@ -30,5 +30,7 @@ jobs:
         npm install typescript@latest ts-node@latest
     - name: Init
       run: |
+        mkdir -p src/.build
+        touch src/.build/topic-monitoring.zip
         task common:build
 
