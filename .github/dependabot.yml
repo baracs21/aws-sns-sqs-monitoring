@@ -10,6 +10,6 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod"
-    directory: "/src"
+    directory: "/src/custom-resources/topic-monitoring"
     schedule:
       interval: "daily"
