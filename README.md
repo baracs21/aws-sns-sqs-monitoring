@@ -1,4 +1,4 @@
-![build](https://github.com/baracs21/aws-sns-sqs-monitoring/actions/workflows/node.js.yml/badge.svg)
+![build](https://github.com/baracs21/aws-sns-sqs-monitoring/actions/workflows/build.yml/badge.svg)
 
 # aws-sns-sqs-monitoring
 
