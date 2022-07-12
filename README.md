@@ -1,5 +1,3 @@
-![build](https://github.com/baracs21/aws-sns-sqs-monitoring/actions/workflows/build.yml/badge.svg)
-
 # aws-sns-sqs-monitoring
 
 Example project to activate monitoring for sns via a custom resource.
