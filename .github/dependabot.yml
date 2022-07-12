@@ -5,13 +5,11 @@
 
 version: 2
 updates:
-  
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/infrastructure" # Location of package manifests
+  - package-ecosystem: "npm"
+    directory: "/infrastructure"
     schedule:
       interval: "daily"
-
   - package-ecosystem: "gomod"
-    directory: "/src"
+    directory: "/src/custom-resources/topic-monitoring"
     schedule:
       interval: "daily"
