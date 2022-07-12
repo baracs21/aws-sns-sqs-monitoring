@@ -24,13 +24,14 @@ jobs:
         submodules: 'true'
     - name: Install Task
       uses: arduino/setup-task@v1
+    - name: Install GoLang
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.17.0'
     - name: Install PreConditions
       run: |
         npm install -g aws-cdk
         npm install typescript@latest ts-node@latest
-    - name: Init
+    - name: Build custom resources and synth 
       run: |
-        mkdir -p src/.build
-        touch src/.build/topic-monitoring.zip
-        task common:build
-
+        task build

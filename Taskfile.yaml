@@ -37,3 +37,4 @@ tasks:
   build:
     cmds:
       - scripts/build-go.sh $PWD/src
+      - task common:build
